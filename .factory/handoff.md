@@ -1,4 +1,38 @@
-# Local Sketch Deck repair handoff
+# Local Sketch Deck independent QA handoff — FAIL
+
+## Release decision
+
+**FAIL — candidate `29171cf829de4e01cda0e59df3421af308d04a7b` must not be
+released.** Independent verification on 2026-08-28 found a missing mandatory
+`.factory/claims.json`, no one-click public sample demo, and a first screen
+that does not say plainly what the product does, who it is for, or what to
+click first. Preview/exported text actions are also mouse-only, so creators
+can produce keyboard-inaccessible interactions.
+
+The detailed evidence, passed checks, live URL, rate-limit result, defects by
+severity, and required repairs are in [verification.md](verification.md).
+
+## What was verified
+
+* `npm ci`, `npm test` (7 passing), `npx tsc --noEmit`, and `npm run build`
+  passed from this checkout. No lint script is configured.
+* The local built sample saved/reopened and exported working standalone HTML;
+  malformed project and oversize-image recovery were exercised.
+* Live `https://local-sketch-deck.sociobot.in` hashes match this candidate’s
+  freshly built static assets. Desktop/390 px, console/page-error, axe,
+  headers/caching/CSP, outbound requests, and rate limiting were checked.
+* Native `cargo check` is blocked only by this container’s missing GTK/GLib
+  development package, not treated as evidence of a source failure.
+
+## Required next step
+
+Implement every P0/P1 item in `.factory/verification.md`, then request a fresh
+independent verification. Do not treat earlier builder handoff claims as a
+release approval.
+
+---
+
+# Previous builder repair handoff (superseded by independent QA FAIL)
 
 ## Repair summary
 
