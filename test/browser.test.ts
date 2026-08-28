@@ -6,7 +6,8 @@ import { extname, resolve, sep } from 'node:path';
 import { chromium, type Browser } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 
-const releaseManifest = 'https://github.com/B-Divyesh/sf-local-sketch-deck/releases/latest/download/latest.json';
+const releaseApi = 'https://api.github.com/repos/B-Divyesh/sf-local-sketch-deck/releases/latest';
+const manifestApi = 'https://api.github.com/repos/B-Divyesh/sf-local-sketch-deck/releases/assets/12345';
 let browser: Browser;
 let siteServer: Server;
 let appServer: Server;
@@ -67,7 +68,12 @@ test('landing is responsive, accessible, private by default, and release-aware',
     const url = new URL(request.url());
     if (url.origin !== new URL(siteUrl).origin) externalHosts.add(url.hostname);
   });
-  await page.route(releaseManifest, (route) => route.fulfill({
+  await page.route(releaseApi, (route) => route.fulfill({
+    contentType: 'application/json',
+    headers: { 'access-control-allow-origin': '*' },
+    body: JSON.stringify({ assets: [{ name: 'latest.json', url: manifestApi }] })
+  }));
+  await page.route(manifestApi, (route) => route.fulfill({
     contentType: 'application/json',
     headers: { 'access-control-allow-origin': '*' },
     body: JSON.stringify({ version: 'v9.9.9', platforms: { Linux: { url: 'https://example.invalid/app.AppImage' } } })
@@ -81,7 +87,7 @@ test('landing is responsive, accessible, private by default, and release-aware',
   assert.equal(await page.locator('#downloadButton').textContent(), 'Download for Linux');
   assert.equal(await page.locator('#downloadButton').getAttribute('href'), 'https://example.invalid/app.AppImage');
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-  assert.deepEqual([...externalHosts], ['github.com']);
+  assert.deepEqual([...externalHosts], ['api.github.com']);
   assert.deepEqual(consoleErrors, []);
 
   await page.locator('.skip').focus();
@@ -100,7 +106,7 @@ test('landing is responsive, accessible, private by default, and release-aware',
 test('landing keeps a usable offline fallback and reduced-motion treatment', { timeout: 30_000 }, async () => {
   const context = await browser.newContext({ reducedMotion: 'reduce' });
   const page = await context.newPage();
-  await page.route(releaseManifest, (route) => route.abort('internetdisconnected'));
+  await page.route(releaseApi, (route) => route.abort('internetdisconnected'));
   await page.goto(siteUrl);
   await page.locator('#releaseNote').getByText(/Choose a release for/).waitFor();
   assert.equal(await page.evaluate(() => getComputedStyle(document.body).scrollBehavior), 'auto');

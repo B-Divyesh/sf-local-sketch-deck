@@ -64,11 +64,12 @@ Local repair evidence on 2026-08-28:
   fallback; reduced-motion behavior passed; first-party load contacted only the
   declared GitHub release manifest and no analytics/tracker.
 
-The landing page reads the required stable release URL
-`https://github.com/B-Divyesh/sf-local-sketch-deck/releases/latest/download/latest.json`
-and links the detected platform installer. The shell installer now selects the
-matching macOS CPU architecture and uses the checksum tool available on Linux
-or macOS.
+The landing page discovers and reads the release's `latest.json` through the
+CORS-enabled GitHub Releases API, then links the detected platform installer.
+The stable download URL remains
+`https://github.com/B-Divyesh/sf-local-sketch-deck/releases/latest/download/latest.json`.
+The shell installer selects the matching macOS CPU architecture and uses the
+checksum tool available on Linux or macOS.
 
 Performance build output: editor JS 12.84 KB (5.30 KB gzip), editor CSS 6.62
 KB (2.15 KB gzip), landing JS 3.08 KB (1.47 KB gzip), landing CSS 4.40 KB
