@@ -64,12 +64,14 @@ Local repair evidence on 2026-08-28:
   fallback; reduced-motion behavior passed; first-party load contacted only the
   declared GitHub release manifest and no analytics/tracker.
 
-The landing page discovers and reads the release's `latest.json` through the
-CORS-enabled GitHub Releases API, then links the detected platform installer.
-The stable download URL remains
+The landing page reads GitHub's CORS-enabled latest-release API and links the
+detected platform installer. The workflow also publishes the required machine
+manifest at
 `https://github.com/B-Divyesh/sf-local-sketch-deck/releases/latest/download/latest.json`.
-The shell installer selects the matching macOS CPU architecture and uses the
-checksum tool available on Linux or macOS.
+(GitHub's direct release-download host omits browser CORS headers, so it cannot
+be parsed directly by a static-site client.) The shell installer selects the
+matching macOS CPU architecture and uses the checksum tool available on Linux
+or macOS.
 
 Performance build output: editor JS 12.84 KB (5.30 KB gzip), editor CSS 6.62
 KB (2.15 KB gzip), landing JS 3.08 KB (1.47 KB gzip), landing CSS 4.40 KB

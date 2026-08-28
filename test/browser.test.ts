@@ -7,7 +7,6 @@ import { chromium, type Browser } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 
 const releaseApi = 'https://api.github.com/repos/B-Divyesh/sf-local-sketch-deck/releases/latest';
-const manifestApi = 'https://api.github.com/repos/B-Divyesh/sf-local-sketch-deck/releases/assets/12345';
 let browser: Browser;
 let siteServer: Server;
 let appServer: Server;
@@ -71,12 +70,7 @@ test('landing is responsive, accessible, private by default, and release-aware',
   await page.route(releaseApi, (route) => route.fulfill({
     contentType: 'application/json',
     headers: { 'access-control-allow-origin': '*' },
-    body: JSON.stringify({ assets: [{ name: 'latest.json', url: manifestApi }] })
-  }));
-  await page.route(manifestApi, (route) => route.fulfill({
-    contentType: 'application/json',
-    headers: { 'access-control-allow-origin': '*' },
-    body: JSON.stringify({ version: 'v9.9.9', platforms: { Linux: { url: 'https://example.invalid/app.AppImage' } } })
+    body: JSON.stringify({ tag_name: 'v9.9.9', assets: [{ name: 'app.AppImage', browser_download_url: 'https://example.invalid/app.AppImage' }] })
   }));
 
   await page.goto(siteUrl, { waitUntil: 'networkidle' });
