@@ -1,7 +1,7 @@
 import './style.css';
 import { blankProject, exportHtml, projectJson, sampleProject, uid, validateProject, type ActionKind, type DeckElement, type Project } from './project';
 
-const q = <T extends Element>(s: string) => document.querySelector(s) as T;
+const q = <T extends Element = HTMLElement>(s: string) => document.querySelector(s) as T;
 const studio = q<HTMLElement>('#studio'), start = q<HTMLElement>('#startScreen'), stage = q<HTMLElement>('#stage'), cards = q<HTMLElement>('#cardList'), inspect = q<HTMLElement>('#inspectorContent'), toast = q<HTMLElement>('#toast');
 let project: Project | null = null, selectedCard = 0, selectedElement: string | null = null;
 let dirty = false;

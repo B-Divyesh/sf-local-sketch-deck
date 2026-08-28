@@ -33,6 +33,9 @@ jobs:
         with: { node-version: 22, cache: npm }
       - name: Install frontend dependencies
         run: npm ci
+      - name: Install Linux bundle dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
       - name: Install Rust targets
         if: startsWith(matrix.label, 'macos-')
         run: rustup target add ${{ matrix.args }}
@@ -47,22 +50,28 @@ jobs:
           releaseDraft: false
           prerelease: false
           args: ${{ matrix.args }}
-      - name: Collect checksums and manifest
-        shell: bash
+  manifest:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release bundles
+        env: { GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
         run: |
-          mkdir -p release-assets
-          find src-tauri/target -type f \( -name '*.dmg' -o -name '*.msi' -o -name '*.exe' -o -name '*.AppImage' -o -name '*.deb' \) -exec cp {} release-assets/ \;
+          mkdir release-assets
+          gh release download "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" --dir release-assets --pattern '*.dmg' --pattern '*.msi' --pattern '*.exe' --pattern '*.AppImage' --pattern '*.deb'
+      - name: Build checksums and latest manifest
+        env: { GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+        run: |
           cd release-assets
           sha256sum * > SHA256SUMS
+          gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" > release.json
           python3 - <<'PY'
-          import glob,json,os
-          files=glob.glob('*')
+          import json,os
+          assets=json.load(open('release.json'))['assets']
           def pick(*suffixes):
-            return next((f for f in files if f.endswith(suffixes)), '')
-          base=f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/download/{os.environ['GITHUB_REF_NAME']}/"
-          data={'version':os.environ['GITHUB_REF_NAME'],'platforms':{
-            'macOS':{'url':base+pick('.dmg')}, 'Windows':{'url':base+pick('.msi','.exe')}, 'Linux':{'url':base+pick('.AppImage','.deb')}}}
-          open('latest.json','w').write(json.dumps(data))
+            return next((a['browser_download_url'] for a in assets if a['name'].endswith(suffixes)), '')
+          open('latest.json','w').write(json.dumps({'version':os.environ['GITHUB_REF_NAME'],'platforms':{
+            'macOS':{'url':pick('.dmg')},'Windows':{'url':pick('.msi','.exe')},'Linux':{'url':pick('.AppImage','.deb')}}}))
           PY
       - name: Upload checksum and manifest
         uses: softprops/action-gh-release@v2
