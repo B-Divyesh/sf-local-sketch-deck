@@ -48,9 +48,10 @@ states, labels, alt text, reduced-motion rules, and mobile layout.
   stops at the Linux system-library check; the release workflow installs the
   required WebKit/GTK bundle dependencies before building. The web app, tests,
   type-check, and production Vite build all pass locally.
-* A release has not been pushed from this disposable worker. Push the committed
-  `v0.1.0` tag to trigger the workflow, then verify one downloaded installer
-  against release `SHA256SUMS` and confirm `latest.json` links each platform.
+* Tags `v0.1.0` and `v0.1.1` exposed workflow validation issues that were
+  corrected. The current `v0.1.2` release matrix was pushed and is running;
+  verify one downloaded installer against release `SHA256SUMS` and confirm
+  `latest.json` links each platform after all matrix jobs complete.
 * Builds are deliberately unsigned. To sign production releases, add
   `APPLE_CERTIFICATE` (plus its password/provisioning variables used by Tauri)
   and `WINDOWS_CERT_PFX` (plus password) as repository secrets, then configure
