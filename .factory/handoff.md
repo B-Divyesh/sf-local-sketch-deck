@@ -91,16 +91,18 @@ states, labels, alt text, reduced-motion rules, and mobile layout.
   required `.dmg`/`.msi`/`.exe`/`.AppImage`/`.deb` installer entries.
 * Downloaded `Local.Sketch.Deck_0.1.0_x64-setup.exe` from the release and
   verified it successfully with the published SHA-256 entry.
-* Static deployment `cb6ee6b2-e3ea-474b-8079-a80e03aaf7a6` succeeded in Azure
+* Static deployment `fe4db2a3-4421-4401-b494-3b18afe1e020` succeeded in Azure
   Static Web Apps (`centralus`), with the canonical custom domain and managed
-  TLS ready at `https://local-sketch-deck.sociobot.in`.
+  TLS ready at `https://local-sketch-deck.sociobot.in`. Extensionless
+  `/privacy` and `/terms` routes return 200 and hashed assets return a one-year
+  immutable cache policy.
 * The factory live verifier returned HTTP 200, a matching Local Sketch Deck
   title, `lang="en"`, one h1, a main landmark, complete image alt text, and zero
   console/page errors. Live mobile Chromium resolved the Linux button to the
   real `v0.1.3` AppImage, had no horizontal overflow, and had zero serious or
   critical axe findings.
 * Lighthouse 12.8.2 mobile: performance 100, accessibility 100, best practices
-  100, SEO 91, LCP 1,057 ms, CLS 0, total transfer 84,283 bytes, and no console
+  100, SEO 91, LCP 1,058 ms, CLS 0, total transfer 84,557 bytes, and no console
   errors.
 
 ## Known gaps / operator action
