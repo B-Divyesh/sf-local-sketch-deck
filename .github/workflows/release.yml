@@ -55,12 +55,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download release bundles
-        env: { GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir release-assets
           gh release download "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" --dir release-assets --pattern '*.dmg' --pattern '*.msi' --pattern '*.exe' --pattern '*.AppImage' --pattern '*.deb'
       - name: Build checksums and latest manifest
-        env: { GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd release-assets
           sha256sum * > SHA256SUMS
