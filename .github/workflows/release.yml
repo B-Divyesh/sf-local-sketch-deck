@@ -1,0 +1,71 @@
+name: Release desktop app
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            args: --target aarch64-apple-darwin
+            label: macos-arm64
+          - platform: macos-latest
+            args: --target x86_64-apple-darwin
+            label: macos-x64
+          - platform: windows-latest
+            args: ''
+            label: windows
+          - platform: ubuntu-latest
+            args: ''
+            label: linux
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - name: Install frontend dependencies
+        run: npm ci
+      - name: Install Rust targets
+        if: startsWith(matrix.label, 'macos-')
+        run: rustup target add ${{ matrix.args }}
+      - name: Build and publish bundles
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Local Sketch Deck ${{ github.ref_name }}
+          releaseBody: Unsigned desktop builds. macOS users may need to right-click → Open; Windows may show SmartScreen.
+          releaseDraft: false
+          prerelease: false
+          args: ${{ matrix.args }}
+      - name: Collect checksums and manifest
+        shell: bash
+        run: |
+          mkdir -p release-assets
+          find src-tauri/target -type f \( -name '*.dmg' -o -name '*.msi' -o -name '*.exe' -o -name '*.AppImage' -o -name '*.deb' \) -exec cp {} release-assets/ \;
+          cd release-assets
+          sha256sum * > SHA256SUMS
+          python3 - <<'PY'
+          import glob,json,os
+          files=glob.glob('*')
+          def pick(*suffixes):
+            return next((f for f in files if f.endswith(suffixes)), '')
+          base=f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/download/{os.environ['GITHUB_REF_NAME']}/"
+          data={'version':os.environ['GITHUB_REF_NAME'],'platforms':{
+            'macOS':{'url':base+pick('.dmg')}, 'Windows':{'url':base+pick('.msi','.exe')}, 'Linux':{'url':base+pick('.AppImage','.deb')}}}
+          open('latest.json','w').write(json.dumps(data))
+          PY
+      - name: Upload checksum and manifest
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: release-assets/SHA256SUMS,release-assets/latest.json

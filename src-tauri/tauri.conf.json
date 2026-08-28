@@ -1,0 +1,9 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Local Sketch Deck",
+  "version": "0.1.0",
+  "identifier": "in.sociobot.local-sketch-deck",
+  "build": { "beforeDevCommand": "npm run dev", "beforeBuildCommand": "npm run build:app", "devUrl": "http://localhost:5173", "frontendDist": "../dist/app" },
+  "app": { "windows": [{ "title": "Local Sketch Deck", "width": 1200, "height": 820, "minWidth": 720, "minHeight": 620 }], "security": { "csp": "default-src 'self' data: blob:; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://api.sociobot.in https://github.com" } },
+  "bundle": { "active": true, "targets": "all", "category": "DeveloperTool", "shortDescription": "Make small interactive cards locally", "longDescription": "A local visual workshop for tiny interactive cards.", "icon": [] }
+}

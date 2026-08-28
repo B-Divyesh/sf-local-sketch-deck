@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#111221" />
+    <title>Local Sketch Deck — make tiny interactive cards</title>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to canvas</a>
+    <header class="appbar"><a class="wordmark" href="#" aria-label="Local Sketch Deck home"><span>▦</span> Local Sketch Deck</a><div class="file-actions"><button id="newProject" class="quiet">New</button><button id="openProject" class="quiet">Open…</button><button id="saveProject" class="signal">Save project</button><button id="exportProject" class="coral">Export HTML</button></div></header>
+    <main id="main">
+      <section id="startScreen" class="start-screen" aria-labelledby="welcomeTitle">
+        <p class="eyebrow">A LOCAL CARD WORKSHOP</p><h1 id="welcomeTitle">Make a tiny thing that <em>responds.</em></h1>
+        <p class="intro">Draw a card, add a button, then give it one clear action. Everything stays in one ordinary project file.</p>
+        <div class="start-actions"><button id="createSample" class="signal large">Open the three-card starter</button><button id="createBlank" class="quiet large">Start a blank deck</button></div>
+        <ul class="promise"><li>Five inspectable actions</li><li>Save &amp; reopen locally</li><li>Export a standalone HTML story</li></ul>
+      </section>
+      <section id="studio" class="studio" hidden aria-label="Project studio">
+        <aside class="rail" aria-label="Card list"><div class="rail-head"><span>CARDS</span><button id="addCard" aria-label="Add card">＋</button></div><div id="cardList" class="card-list" role="list"></div></aside>
+        <section class="workbench" aria-label="Card canvas"><div class="canvas-tools"><span id="projectName" class="project-name">Untitled deck</span><div><button id="previewProject" class="quiet">▶ Preview</button><button id="addText" class="quiet">+ Text</button><button id="addButton" class="quiet">+ Button</button><label class="quiet file-label">+ Image<input id="addImage" type="file" accept="image/*" /></label></div></div><div class="stage-wrap"><div id="stage" class="stage" tabindex="0" aria-label="Editable card canvas"></div></div><p class="keyboard-hint">Tip: select an object, then use the inspector. Delete removes it. ⌘/Ctrl+S saves.</p></section>
+        <aside class="inspector" aria-label="Inspector"><div id="inspectorContent"></div></aside>
+      </section>
+    </main>
+    <dialog id="previewDialog" aria-labelledby="previewTitle"><div class="dialog-head"><h2 id="previewTitle">Play your deck</h2><button id="closePreview" class="quiet" aria-label="Close preview">×</button></div><div id="previewStage" class="preview-stage"></div><p id="previewStatus" class="sr-status" aria-live="polite"></p></dialog>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <input id="openFile" type="file" accept="application/json,.sketchdeck" hidden />
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
