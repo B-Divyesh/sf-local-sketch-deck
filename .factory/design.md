@@ -50,3 +50,6 @@ It is an original generated product asset, reviewed for artifacts and converted
 to WebP for the landing page.
 
 Small functional icons are authored as inline SVG/CSS, not generated imagery.
+The application icon at `assets/src/app-icon.svg` is hand-authored for this
+product from the signal-card grid motif and the documented cyan/coral/gold
+palette; Tauri-generated platform renditions live in `src-tauri/icons/`.

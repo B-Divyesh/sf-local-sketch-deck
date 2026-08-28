@@ -1,4 +1,25 @@
-# Local Sketch Deck handoff
+# Local Sketch Deck repair handoff
+
+## Repair summary
+
+Candidate `3ad1d404bf20c5bf382f449b9b5751ac52e80c95` reproduced a false-success
+production build: `npm ci && npm run build` wrote the landing page to
+`site/dist/site/index.html`, leaving the declared deploy root
+`dist/site/index.html` missing. `vite.site.config.ts` now anchors the site root,
+public directory, and output directory to the config file instead of resolving
+the CLI `--outDir` relative to `site/`. The production build now emits the
+landing page, privacy and terms pages, and all referenced assets under
+`dist/site`, after the desktop webview build finishes.
+
+`test/build-output.test.ts` prevents recurrence by deleting both possible output
+trees, running the literal `npm run build`, asserting `dist/site/index.html`,
+checking every local stylesheet/script/image reference, checking privacy/terms,
+checking the desktop webview output, and rejecting the former nested output.
+
+The failed `v0.1.2` Actions logs also exposed missing Tauri platform icons as the
+reason all four native package jobs failed. A hand-authored, product-specific
+source icon and Tauri-generated `.png`, `.ico`, and `.icns` renditions now make
+the existing macOS arm64/x64, Windows, and Linux release matrix packageable.
 
 ## What shipped
 
@@ -26,15 +47,28 @@ npm run build
 ```
 
 Build output: editor `dist/app`; static landing deploy root `dist/site`.
-`npx tsc --noEmit` also passes.
 
-Browser smoke test (Chromium at 390 px): opened the three-card starter, added
-a button, opened/closed preview, and observed no console errors. Axe reported
-zero violations for the editor start screen and zero for the landing page.
-The landing page’s release request currently returns an expected 404 in local
-development because no GitHub Release exists yet; it falls back to the release
-page. After the first tag release, it reads `latest.json` from the release asset
-API and links the detected platform installer.
+Local repair evidence on 2026-08-28:
+
+* `npm ci && npm run build` — passed; `dist/site/index.html` present and
+  `site/dist` absent.
+* `npm test` — 7/7 passed: 3 unit, 1 clean exact-build regression, and 3
+  Playwright browser scenarios.
+* `npx tsc --noEmit` and `sh -n public/install.sh` — passed.
+* Chromium at 1280×850 and 390×844 — editor starter/add/preview flow passed by
+  keyboard; landing OS detection and release-manifest update passed; no page or
+  console errors; no horizontal mobile overflow.
+* Axe — zero serious or critical findings on the editor start/studio and the
+  landing, privacy, and terms pages.
+* Offline/update/privacy — failed manifest fetch retained the usable GitHub
+  fallback; reduced-motion behavior passed; first-party load contacted only the
+  declared GitHub release manifest and no analytics/tracker.
+
+The landing page reads the required stable release URL
+`https://github.com/B-Divyesh/sf-local-sketch-deck/releases/latest/download/latest.json`
+and links the detected platform installer. The shell installer now selects the
+matching macOS CPU architecture and uses the checksum tool available on Linux
+or macOS.
 
 Performance build output: editor JS 12.84 KB (5.30 KB gzip), editor CSS 6.62
 KB (2.15 KB gzip), landing JS 3.08 KB (1.47 KB gzip), landing CSS 4.40 KB
@@ -42,16 +76,21 @@ KB (2.15 KB gzip), landing JS 3.08 KB (1.47 KB gzip), landing CSS 4.40 KB
 the stated static budgets. Semantics include a title/lang/main/one h1, focus
 states, labels, alt text, reduced-motion rules, and mobile layout.
 
+## Release and deployment evidence
+
+Pending the repaired tagged GitHub Actions run and static deployment. Final run,
+release asset/checksum, Lighthouse, and live identity evidence will be recorded
+here after those operations complete.
+
 ## Known gaps / operator action
 
 * This container lacks `glib-2.0` development headers, so local `cargo check`
   stops at the Linux system-library check; the release workflow installs the
   required WebKit/GTK bundle dependencies before building. The web app, tests,
   type-check, and production Vite build all pass locally.
-* Tags `v0.1.0` and `v0.1.1` exposed workflow validation issues that were
-  corrected. The current `v0.1.2` release matrix was pushed and is running;
-  verify one downloaded installer against release `SHA256SUMS` and confirm
-  `latest.json` links each platform after all matrix jobs complete.
+* Local `cargo check --locked` stops at `glib-2.0` discovery because this worker
+  does not contain the Linux desktop development packages. GitHub Actions
+  installs WebKitGTK, AppIndicator, librsvg, and patchelf before native builds.
 * Builds are deliberately unsigned. To sign production releases, add
   `APPLE_CERTIFICATE` (plus its password/provisioning variables used by Tauri)
   and `WINDOWS_CERT_PFX` (plus password) as repository secrets, then configure
