@@ -37,5 +37,6 @@ test('the exact production build creates a complete deployable site root', () =>
   }
   assert.ok(existsSync(resolve(deployRoot, 'privacy.html')), 'privacy page must be deployable');
   assert.ok(existsSync(resolve(deployRoot, 'terms.html')), 'terms page must be deployable');
+  assert.ok(existsSync(resolve(deployRoot, 'favicon.ico')), 'browser icon must be deployable');
   assert.ok(existsSync(resolve(repository, 'dist/app/index.html')), 'desktop webview assets must remain deployable');
 });
