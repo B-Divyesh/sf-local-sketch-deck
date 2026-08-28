@@ -60,9 +60,9 @@ Local repair evidence on 2026-08-28:
   console errors; no horizontal mobile overflow.
 * Axe — zero serious or critical findings on the editor start/studio and the
   landing, privacy, and terms pages.
-* Offline/update/privacy — failed manifest fetch retained the usable GitHub
+* Offline/update/privacy — failed release fetch retained the usable GitHub
   fallback; reduced-motion behavior passed; first-party load contacted only the
-  declared GitHub release manifest and no analytics/tracker.
+  declared GitHub Releases API and no analytics/tracker.
 
 The landing page reads GitHub's CORS-enabled latest-release API and links the
 detected platform installer. The workflow also publishes the required machine
@@ -74,26 +74,41 @@ matching macOS CPU architecture and uses the checksum tool available on Linux
 or macOS.
 
 Performance build output: editor JS 12.84 KB (5.30 KB gzip), editor CSS 6.62
-KB (2.15 KB gzip), landing JS 3.08 KB (1.47 KB gzip), landing CSS 4.40 KB
+KB (2.15 KB gzip), landing JS 2.75 KB (1.32 KB gzip), landing CSS 4.40 KB
 (1.51 KB gzip), and LCP illustration 58 KB WebP. These are comfortably below
 the stated static budgets. Semantics include a title/lang/main/one h1, focus
 states, labels, alt text, reduced-motion rules, and mobile layout.
 
 ## Release and deployment evidence
 
-Pending the repaired tagged GitHub Actions run and static deployment. Final run,
-release asset/checksum, Lighthouse, and live identity evidence will be recorded
-here after those operations complete.
+* Release: `v0.1.3` at
+  `https://github.com/B-Divyesh/sf-local-sketch-deck/releases/tag/v0.1.3`.
+  Actions run `33156420772` completed successfully: verification, Windows,
+  Linux, both macOS architectures, and manifest jobs all passed.
+* Published installers: macOS arm64/x64 `.dmg`, Windows `.msi` and `.exe`, and
+  Linux `.AppImage`, `.deb`, and `.rpm`. `latest.json` parses as version
+  `v0.1.3` with non-empty macOS/Windows/Linux URLs; `SHA256SUMS` contains the six
+  required `.dmg`/`.msi`/`.exe`/`.AppImage`/`.deb` installer entries.
+* Downloaded `Local.Sketch.Deck_0.1.0_x64-setup.exe` from the release and
+  verified it successfully with the published SHA-256 entry.
+* Static deployment `cb6ee6b2-e3ea-474b-8079-a80e03aaf7a6` succeeded in Azure
+  Static Web Apps (`centralus`), with the canonical custom domain and managed
+  TLS ready at `https://local-sketch-deck.sociobot.in`.
+* The factory live verifier returned HTTP 200, a matching Local Sketch Deck
+  title, `lang="en"`, one h1, a main landmark, complete image alt text, and zero
+  console/page errors. Live mobile Chromium resolved the Linux button to the
+  real `v0.1.3` AppImage, had no horizontal overflow, and had zero serious or
+  critical axe findings.
+* Lighthouse 12.8.2 mobile: performance 100, accessibility 100, best practices
+  100, SEO 91, LCP 1,057 ms, CLS 0, total transfer 84,283 bytes, and no console
+  errors.
 
 ## Known gaps / operator action
 
-* This container lacks `glib-2.0` development headers, so local `cargo check`
-  stops at the Linux system-library check; the release workflow installs the
-  required WebKit/GTK bundle dependencies before building. The web app, tests,
-  type-check, and production Vite build all pass locally.
 * Local `cargo check --locked` stops at `glib-2.0` discovery because this worker
   does not contain the Linux desktop development packages. GitHub Actions
-  installs WebKitGTK, AppIndicator, librsvg, and patchelf before native builds.
+  installs WebKitGTK, AppIndicator, librsvg, and patchelf; its Linux native
+  bundle completed successfully.
 * Builds are deliberately unsigned. To sign production releases, add
   `APPLE_CERTIFICATE` (plus its password/provisioning variables used by Tauri)
   and `WINDOWS_CERT_PFX` (plus password) as repository secrets, then configure
